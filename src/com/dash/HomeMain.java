@@ -4,6 +4,8 @@ package com.dash;
 public class HomeMain {
 	public static void main(String []args)
 	{
+		double d = -0.07857;
+		System.out.println(d);
 		PropertyValueReader props = new PropertyValueReader();
 		String url = props.getPropertyValue();
 		
@@ -15,5 +17,7 @@ public class HomeMain {
 		Geoname[] geos = JSONparser.parseIt(jsonResponse);
 
 		//insert into database
+		DBconn dbConnection = new DBconn();
+		dbConnection.CreateAndInsertValuesToDB(geos);
 	}
 }

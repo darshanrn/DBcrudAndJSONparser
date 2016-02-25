@@ -5,12 +5,12 @@ public class Geoname {
 	int elevation;
 	long geoNameId;
 	String feature;
-	double longitude;
+	double lng;
 	String countryCode;
 	int rank;
 	String thumbnailImg;
 	String lang;
 	String title;
-	double latitude;
+	double lat;
 	String wikipediaUrl;
 }
