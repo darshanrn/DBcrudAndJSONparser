@@ -3,6 +3,7 @@ package com.dash;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,7 +50,7 @@ public class DBconn {
 
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DBconn.getDBinstance();
+			conn = DriverManager.getConnection("jdbc:sqlite:geonames.db");
 			System.out.println("Created & Opened a new database successfully");
 
 			stmt = conn.createStatement();
@@ -90,7 +91,7 @@ public class DBconn {
 			}
 
 			stmt.close();
-			DBconn.closeDB();
+			conn.close();
 		} catch ( Exception e ) {
 			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
 			return false;
@@ -98,4 +99,43 @@ public class DBconn {
 		System.out.println("Table created successfully");
 		return true;
 	}
+
+	public void GetAllFeatures(String featureName)
+	{
+		Connection conn = null;
+		Statement stmt = null;
+
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:geonames.db");
+			System.out.println("Opened the database successfully");
+
+			stmt = conn.createStatement();
+			
+			/*use this sql query to avoid the following problem
+			 * [SQLITE_BUSY] The database file is locked (database is locked)
+			 * pragma busy_timeout keeps the busy handler of the DB silent for
+			 * multiple times within the specified timeout
+			 */
+			String waitTimeoutSQL = "pragma busy_timeout=30000;";
+			stmt.executeQuery(waitTimeoutSQL);
+			
+			String sql = "SELECT * FROM GEONAME WHERE FEATURE LIKE '%" + featureName + "%'"; 
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while ( rs.next() ) {				
+				System.out.println(rs.getString("ID") + "|" +
+						rs.getString("TITLE") + "|" + 
+						rs.getString("COUNTRYCODE") + "|" +
+						rs.getString("FEATURE") + "|" +
+						rs.getString("LANGUAGE") + "|" );
+			}
+			rs.close();
+			stmt.close();
+			conn.close();
+		} catch ( Exception e ) {
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+		}
+	}
 }
+
